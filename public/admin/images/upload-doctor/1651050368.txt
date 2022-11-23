@@ -1,0 +1,75 @@
+Install Laravel------------
+** laravel new (project name)
+1. composer require laravel/ui
+2. composer require laravel/jetstream
+3. php artisan ui bootstrap
+4. php artisan ui bootstrap --auth
+5. php artisan jetstream:install livewire
+6. npm install && npm run dev
+7. npm run dev
+
+
+
+** Join Table To Others Table Usign Query Builder
+        $products = DB::table('products')
+            ->join('categories', 'products.category_id', 'categories.id')->select([
+                'products.id',
+                'products.product_code',
+                'products.product_name',
+                'products.product_price',
+                'products.main_image',
+                'products.status',
+                'categories.category_name',
+            ])->get();
+		return view('admin.product.index', compact('products'));
+
+
+
+
+
+** Join Table To Others Table Usign Elequent Orm
+Product Model:___________
+
+//Relation Product To Category Table
+    public function category()
+    {
+        return $this->belongsTo('App\Models\Category', 'category_id');
+    }
+
+
+    //Relation Product To Section Table
+    public function section()
+    {
+        return $this->belongsTo('App\Models\Section', 'section_id');
+    }
+
+Product Controller:_________
+
+       $products = Product::with(['category' => function ($query) {
+            $query->select('id', 'category_name');
+        }, 'section' => function ($query) {
+            $query->select('id', 'name');
+        }])->get();
+        return view('admin.product.index', compact('products'));
+
+
+
+
+
+
+
+Upload Project In Live Servir Then [Place This Code .htaccess File:
+
+<IfModule mod_rewrite.c>
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ ^$1 [N]
+RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
+RewriteRule ^(.*)$ public/$1 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ server.php
